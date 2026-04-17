@@ -1,0 +1,86 @@
+{
+  "design_guidelines": {
+    "instructions_to_main_agent": [
+      "This project is 'JPM-SwingEdge Pro', a dense, institutional-grade quantitative trading dashboard for NSE markets.",
+      "Strictly use the provided hex codes for colors. No generic Tailwind default colors like 'blue-500' unless they perfectly match.",
+      "Implement the 'Control Room' grid: dense, gap-4 spacing, flat panels (bg-[#111827]) with 1px border (#1F2937), no shadows.",
+      "For typography, use IBM Plex Sans for UI and IBM Plex Mono for all financial numbers and tickers. Ensure numbers are tabular-nums.",
+      "Use TradingView Lightweight Charts for the main Stock Deep Dive and recharts for minor panels (FII/DII flow, risk comparison).",
+      "Ensure real-time WebSocket updates simulate a subtle background flash on data change.",
+      "All interactive and informational elements MUST include `data-testid`."
+    ],
+    "theme": "dark",
+    "archetype": "Archetype 4 (Swiss & High-Contrast) - Institutional Variant",
+    "colors": {
+      "background": "#0A0E1A",
+      "surface_card": "#111827",
+      "border": "#1F2937",
+      "primary_blue": "#3B82F6",
+      "bull_green": "#10B981",
+      "bear_red": "#EF4444",
+      "warning_amber": "#F59E0B",
+      "text_primary": "#F9FAFB",
+      "text_secondary": "#9CA3AF",
+      "text_muted": "#6B7280"
+    },
+    "typography": {
+      "families": {
+        "sans": "IBM Plex Sans, sans-serif",
+        "mono": "IBM Plex Mono, monospace"
+      },
+      "scales": {
+        "h1": "text-2xl font-semibold tracking-tight text-[#F9FAFB]",
+        "h2": "text-lg font-semibold tracking-tight text-[#F9FAFB]",
+        "h3": "text-base font-medium text-[#F9FAFB]",
+        "body": "text-sm text-[#9CA3AF]",
+        "data_large": "text-lg font-mono font-medium text-[#F9FAFB]",
+        "data_regular": "text-sm font-mono tabular-nums text-[#F9FAFB]",
+        "label_tiny": "text-[10px] font-mono tracking-[0.05em] uppercase text-[#6B7280]"
+      }
+    },
+    "spacing_and_layout": {
+      "container_padding": "p-4 md:p-6",
+      "card_padding": "p-4",
+      "gap": "gap-4",
+      "radius": "rounded-sm",
+      "grid_strategy": "Dense bento-style 'Control Room' grid. Elements use h-full to stretch and align mathematically."
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 px-3 py-1.5 text-sm font-medium rounded-sm transition-colors",
+        "secondary": "bg-[#1F2937] text-[#F9FAFB] hover:bg-[#374151] px-3 py-1.5 text-sm font-medium rounded-sm transition-colors",
+        "outline": "border border-[#1F2937] text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-[#1F2937]/50 px-3 py-1.5 text-sm font-medium rounded-sm transition-colors"
+      },
+      "table": {
+        "wrapper": "w-full overflow-x-auto",
+        "header": "text-[10px] font-mono uppercase text-[#6B7280] text-left pb-2 border-b border-[#1F2937]",
+        "row": "border-b border-[#1F2937]/50 hover:bg-[#1F2937]/30 transition-colors cursor-default",
+        "cell": "py-2 px-1 text-sm text-[#F9FAFB]"
+      },
+      "badges": {
+        "bull": "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 px-1.5 py-0.5 rounded-sm text-[10px] font-mono uppercase",
+        "bear": "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 px-1.5 py-0.5 rounded-sm text-[10px] font-mono uppercase",
+        "warning": "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 px-1.5 py-0.5 rounded-sm text-[10px] font-mono uppercase",
+        "neutral": "bg-[#1F2937] text-[#9CA3AF] border border-[#374151] px-1.5 py-0.5 rounded-sm text-[10px] font-mono uppercase"
+      },
+      "inputs": {
+        "base": "bg-[#0A0E1A] border border-[#1F2937] rounded-sm px-2 py-1.5 text-sm text-[#F9FAFB] focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]",
+        "slider": "w-full h-1 bg-[#1F2937] rounded-sm appearance-none accent-[#3B82F6]"
+      }
+    },
+    "motion": {
+      "hover": "transition-all duration-150 ease-in-out",
+      "real_time_flash_up": "animate-pulse bg-[#10B981]/20 duration-500",
+      "real_time_flash_down": "animate-pulse bg-[#EF4444]/20 duration-500"
+    },
+    "media_and_assets": {
+      "icons": "lucide-react",
+      "images": [],
+      "charts": "TradingView Lightweight Charts for primary stock charts; Recharts for static analytical charts."
+    },
+    "testing_requirements": [
+      "All interactive elements MUST have `data-testid`.",
+      "Format: `data-testid=\"{page}-{component}-{action}\"` (e.g., `data-testid=\"strategy-lab-enable-toggle\"`)."
+    ]
+  }
+}
