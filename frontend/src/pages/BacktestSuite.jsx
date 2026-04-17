@@ -73,10 +73,10 @@ const BacktestSuite = () => {
               { label: 'Sharpe Ratio', value: results.metrics?.sharpe_ratio?.toFixed(2), color: 'text-[#F9FAFB]' },
               { label: 'Max Drawdown', value: `${results.metrics?.max_drawdown?.toFixed(2)}%`, color: 'text-[#EF4444]' },
               { label: 'Win Rate', value: `${results.metrics?.win_rate?.toFixed(1)}%`, color: 'text-[#F9FAFB]' },
-            ].map((metric, idx) => (
-              <div key={idx} className="bg-[#111827] border border-[#1F2937] rounded-sm p-4">
+            ].map((metric) => (
+              <div key={metric.label} className="bg-[#111827] border border-[#1F2937] rounded-sm p-4">
                 <span className="text-[10px] font-mono uppercase text-[#6B7280]">{metric.label}</span>
-                <div className={`text-2xl font-mono font-medium mt-2 ${metric.color}`} data-testid={`metric-${idx}`}>
+                <div className={`text-2xl font-mono font-medium mt-2 ${metric.color}`} data-testid={`metric-${metric.label}`}>
                   {metric.value}
                 </div>
               </div>
@@ -109,8 +109,8 @@ const BacktestSuite = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.trades?.slice(0, 10).map((trade, idx) => (
-                    <tr key={idx} className="border-b border-[#1F2937]/50">
+                  {results.trades?.slice(0, 10).map((trade) => (
+                    <tr key={`${trade.ticker}-${trade.entry_price}-${trade.pnl_pct}`} className="border-b border-[#1F2937]/50">
                       <td className="py-2 text-sm text-[#F9FAFB] font-mono">{trade.ticker}</td>
                       <td className="py-2 text-sm text-[#9CA3AF]">{trade.signal}</td>
                       <td className="py-2 text-sm text-[#F9FAFB] font-mono text-right">₹{trade.entry_price?.toFixed(2)}</td>

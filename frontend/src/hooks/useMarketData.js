@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -8,112 +8,98 @@ export const useMarketData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchMarketRegime = async () => {
+  const fetchMarketRegime = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/market/regime`);
-      setLoading(false);
       return response.data;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchTopSignals = async (timeframe = 'swing') => {
+  const fetchTopSignals = useCallback(async (timeframe = 'swing') => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/signals/top10?timeframe=${timeframe}`);
-      setLoading(false);
       return response.data;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const runScanner = async (timeframe = 'swing') => {
+  const runScanner = useCallback(async (timeframe = 'swing') => {
     try {
       setLoading(true);
       const response = await axios.post(`${API}/scanner/run?timeframe=${timeframe}`);
-      setLoading(false);
       return response.data;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchStockDetail = async (ticker) => {
+  const fetchStockDetail = useCallback(async (ticker) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/signals/${ticker}`);
-      setLoading(false);
       return response.data;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchSentiment = async (ticker) => {
+  const fetchSentiment = useCallback(async (ticker) => {
     try {
       const response = await axios.get(`${API}/sentiment/${ticker}`);
       return response.data;
-    } catch (err) {
-      console.error('Sentiment fetch error:', err);
+    } catch {
       return null;
     }
-  };
+  }, []);
 
-  const fetchStrategies = async () => {
+  const fetchStrategies = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/strategies/list`);
       return response.data;
-    } catch (err) {
-      console.error('Strategies fetch error:', err);
+    } catch {
       return null;
     }
-  };
+  }, []);
 
-  const runBacktest = async (strategy, capital = 100000) => {
+  const runBacktest = useCallback(async (strategy, capital = 100000) => {
     try {
       setLoading(true);
       const response = await axios.post(`${API}/backtest/run?strategy=${strategy}&capital=${capital}`);
-      setLoading(false);
       return response.data;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const calculateRisk = async (params) => {
+  const calculateRisk = useCallback(async (params) => {
     try {
       const queryStr = new URLSearchParams(params).toString();
       const response = await axios.get(`${API}/portfolio/risk?${queryStr}`);
       return response.data;
-    } catch (err) {
-      console.error('Risk calculation error:', err);
+    } catch {
       return null;
     }
-  };
+  }, []);
 
-  return {
-    loading,
-    error,
-    fetchMarketRegime,
-    fetchTopSignals,
-    runScanner,
-    fetchStockDetail,
-    fetchSentiment,
-    fetchStrategies,
-    runBacktest,
-    calculateRisk
-  };
+  return { loading, error, fetchMarketRegime, fetchTopSignals, runScanner, fetchStockDetail, fetchSentiment, fetchStrategies, runBacktest, calculateRisk };
 };

@@ -18,6 +18,15 @@ from core.sentiment import SentimentAnalyzer
 from core.risk import RiskManager
 from core.backtest import Backtester
 from core.indicators import TechnicalIndicators
+from core.ml.weight_optimizer import weight_optimizer
+from core.ml.quality_classifier import quality_classifier
+from core.ml.exit_predictor import exit_predictor
+from core.ml.hmm_regime import hmm_regime
+from core.ml.volume_anomaly import volume_anomaly
+from core.ml.news_impact import news_impact
+from core.ml.sector_momentum import sector_ml
+from core.ml.pattern_recognition import pattern_recognizer
+from core.ml.earnings_predictor import earnings_predictor
 import pandas as pd
 
 ROOT_DIR = Path(__file__).parent
@@ -233,6 +242,107 @@ async def get_intraday_signals():
     except Exception as e:
         logger.error(f"Intraday error: {e}")
         return {"success": True, "signals": []}
+
+
+# ── ML Enhancement Endpoints ──
+
+@api_router.get("/ml/regime-probabilities")
+async def get_regime_probabilities(returns: float = Query(0.001), vix: float = Query(15), fii_flow: float = Query(0)):
+    """HMM-based regime with probability outputs."""
+    probs = hmm_regime.predict_regime_probs(returns, vix, fii_flow)
+    dominant = max(probs, key=probs.get)
+    return {"success": True, "probabilities": probs, "dominant_regime": dominant}
+
+
+@api_router.get("/ml/optimal-weights")
+async def get_optimal_weights(regime: str = Query("SIDEWAYS"), vix: float = Query(15), fii_flow: float = Query(0)):
+    """Dynamic weight optimization for scoring engine."""
+    weights = weight_optimizer.get_weights(regime, vix, fii_flow)
+    return {"success": True, "weights": weights, "regime": regime}
+
+
+@api_router.post("/ml/quality-score")
+async def get_quality_score(
+    rsi: float = Query(50), macd_hist: float = Query(0), adx: float = Query(20),
+    volume_ratio: float = Query(1.0), bb_width: float = Query(0.05),
+    price_vs_ema20: float = Query(0), price_vs_ema50: float = Query(0), atr_pct: float = Query(0.02)
+):
+    """XGBoost setup quality classifier."""
+    score = quality_classifier.predict_quality({
+        'rsi': rsi, 'macd_hist': macd_hist, 'adx': adx,
+        'volume_ratio': volume_ratio, 'bb_width': bb_width,
+        'price_vs_ema20': price_vs_ema20, 'price_vs_ema50': price_vs_ema50, 'atr_pct': atr_pct,
+    })
+    return {"success": True, "quality_score": score}
+
+
+@api_router.post("/ml/optimal-exit")
+async def get_optimal_exit(
+    atr_pct: float = Query(0.02), rsi: float = Query(50), adx: float = Query(20),
+    volume_ratio: float = Query(1.0), bb_width: float = Query(0.05), regime_code: int = Query(2)
+):
+    """Gradient Boosting optimal exit predictor."""
+    result = exit_predictor.predict_exit({
+        'atr_pct': atr_pct, 'rsi': rsi, 'adx': adx,
+        'volume_ratio': volume_ratio, 'bb_width': bb_width, 'regime_code': regime_code,
+    })
+    return {"success": True, **result}
+
+
+@api_router.post("/ml/volume-anomaly")
+async def detect_volume_anomaly(
+    volume_ratio_1d: float = Query(1.0), volume_ratio_5d: float = Query(1.0),
+    price_change_pct: float = Query(0.0), delivery_pct: float = Query(50.0), oi_change_pct: float = Query(0.0)
+):
+    """Isolation Forest volume anomaly detection."""
+    result = volume_anomaly.detect({
+        'volume_ratio_1d': volume_ratio_1d, 'volume_ratio_5d': volume_ratio_5d,
+        'price_change_pct': price_change_pct, 'delivery_pct': delivery_pct, 'oi_change_pct': oi_change_pct,
+    })
+    return {"success": True, **result}
+
+
+@api_router.get("/ml/news-impact")
+async def get_news_impact(event_type: str = Query("results"), market_cap_cr: float = Query(50000), regime_code: int = Query(2)):
+    """Predict price impact of NSE announcement types."""
+    result = news_impact.predict_impact(event_type, market_cap_cr, regime_code)
+    return {"success": True, **result}
+
+
+@api_router.get("/ml/sector-rotation")
+async def get_sector_rotation():
+    """ML-based sector rotation prediction."""
+    ranks = sector_ml.predict_sector_ranks()
+    return {"success": True, "sectors": ranks}
+
+
+@api_router.post("/ml/pattern-recognition")
+async def recognize_pattern(
+    body_ratio: float = Query(0.5), upper_wick_ratio: float = Query(0.2),
+    lower_wick_ratio: float = Query(0.2), volume_ratio: float = Query(1.0),
+    range_vs_atr: float = Query(1.0), close_position: float = Query(0.5), prev_trend: int = Query(0)
+):
+    """Intraday candlestick pattern recognition."""
+    result = pattern_recognizer.recognize({
+        'body_ratio': body_ratio, 'upper_wick_ratio': upper_wick_ratio,
+        'lower_wick_ratio': lower_wick_ratio, 'volume_ratio': volume_ratio,
+        'range_vs_atr': range_vs_atr, 'close_position': close_position, 'prev_trend': prev_trend,
+    })
+    return {"success": True, **result}
+
+
+@api_router.post("/ml/earnings-surprise")
+async def predict_earnings(
+    delivery_pct_avg_30d: float = Query(55), promoter_change_pct: float = Query(0),
+    revenue_growth_qoq: float = Query(5), sector_momentum: float = Query(0), pre_result_volume_spike: float = Query(1.0)
+):
+    """Predict earnings surprise probability."""
+    result = earnings_predictor.predict({
+        'delivery_pct_avg_30d': delivery_pct_avg_30d, 'promoter_change_pct': promoter_change_pct,
+        'revenue_growth_qoq': revenue_growth_qoq, 'sector_momentum': sector_momentum,
+        'pre_result_volume_spike': pre_result_volume_spike,
+    })
+    return {"success": True, **result}
 
 
 # ── WebSocket ──
