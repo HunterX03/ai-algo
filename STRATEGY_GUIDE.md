@@ -249,3 +249,38 @@ backend/
 - Inference is <1ms per prediction (numpy array → sklearn predict)
 - Mock data uses `secrets` module for cryptographically secure randomness
 - Frontend uses `useCallback` to prevent unnecessary re-renders
+
+---
+
+## Quant Engine — 5 Tiers
+
+### Tier 1: Multi-Factor Model (`/api/quant/factor-scores`)
+5-factor scoring: Value (PE/PB), Momentum (12-1 month), Quality (ROE, debt), Low Vol, Size.
+Weights are regime-dependent. Edit `REGIME_FACTOR_WEIGHTS` in `/app/backend/core/quant/factor_model.py`.
+To add fundamental data: update `NSE_FUNDAMENTALS` dict or connect Screener.in scraper.
+
+### Tier 2: Statistical Pairs Trading (`/api/quant/pairs`)
+Cointegration-based pairs. Edit `CANDIDATE_PAIRS` in `/app/backend/core/quant/pairs_trading.py`.
+Signals at z-score > 2.0 std dev. Adjust `entry_z` / `exit_z` in the class.
+
+### Tier 3: Options Flow (`/api/quant/options-flow`)
+Reads OI buildup, IV spikes, PCR. Edit `FNO_STOCKS` for watchlist.
+Connect real options chain data via Fyers API for production.
+
+### Tier 4: Order Flow Imbalance (`/api/quant/order-flow/{ticker}`)
+Bid/ask pressure from tick data. Adjust `imbalance_threshold` (default 0.6).
+Feeds into ORB/VWAP strategies for precise entry timing.
+
+### Tier 5: Volatility Surface (`/api/quant/vol-surface/{ticker}`)
+IV surface with RV divergence detection. Pre-event/post-event classification.
+Connect real options chain data for production accuracy.
+
+### Quant API Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/quant/factor-scores?regime=X` | Multi-factor rankings |
+| GET | `/api/quant/pairs` | All pairs trading signals |
+| GET | `/api/quant/options-flow?ticker=X` | Options flow analysis |
+| GET | `/api/quant/order-flow/{ticker}` | Order flow imbalance |
+| GET | `/api/quant/vol-surface/{ticker}` | Volatility surface |
+| GET | `/api/quant/vol-opportunities` | Scan vol opportunities |

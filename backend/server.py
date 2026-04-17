@@ -27,6 +27,11 @@ from core.ml.news_impact import news_impact
 from core.ml.sector_momentum import sector_ml
 from core.ml.pattern_recognition import pattern_recognizer
 from core.ml.earnings_predictor import earnings_predictor
+from core.quant.factor_model import factor_model
+from core.quant.pairs_trading import pairs_trader
+from core.quant.options_flow import options_flow
+from core.quant.order_flow import order_flow
+from core.quant.volatility_surface import vol_surface
 import pandas as pd
 
 ROOT_DIR = Path(__file__).parent
@@ -343,6 +348,70 @@ async def predict_earnings(
         'pre_result_volume_spike': pre_result_volume_spike,
     })
     return {"success": True, **result}
+
+
+# ── Quant Tier Endpoints ──
+
+@api_router.get("/quant/factor-scores")
+async def get_factor_scores(regime: str = Query("SIDEWAYS")):
+    """Tier 1: Multi-factor model scores for NSE universe."""
+    from core.scanner import NSE_TOP_STOCKS
+    price_data = {}
+    for t in NSE_TOP_STOCKS:
+        sym = fyers_client.format_nse_symbol(t)
+        hist = fyers_client.get_historical(sym, "D", 365)
+        if hist.get('s') == 'ok' and hist.get('candles'):
+            df = pd.DataFrame(hist['candles'], columns=['timestamp','open','high','low','close','volume'])
+            price_data[t] = df
+    ranked = factor_model.rank_universe(list(price_data.keys()), price_data, regime)
+    return {"success": True, "rankings": ranked, "regime": regime}
+
+
+@api_router.get("/quant/pairs")
+async def get_pairs_signals():
+    """Tier 2: Statistical pairs trading signals."""
+    from core.scanner import NSE_TOP_STOCKS
+    price_data = {}
+    for t in NSE_TOP_STOCKS:
+        sym = fyers_client.format_nse_symbol(t)
+        hist = fyers_client.get_historical(sym, "D", 120)
+        if hist.get('s') == 'ok' and hist.get('candles'):
+            df = pd.DataFrame(hist['candles'], columns=['timestamp','open','high','low','close','volume'])
+            price_data[t] = df['close']
+    results = pairs_trader.scan_all_pairs(price_data)
+    return {"success": True, "pairs": results}
+
+
+@api_router.get("/quant/options-flow")
+async def get_options_flow(ticker: str = Query(None)):
+    """Tier 3: Options flow analysis."""
+    if ticker:
+        result = options_flow.analyze_stock_options(ticker)
+        return {"success": True, "data": result}
+    results = options_flow.scan_all_fno()
+    return {"success": True, "signals": results}
+
+
+@api_router.get("/quant/order-flow/{ticker}")
+async def get_order_flow(ticker: str):
+    """Tier 4: Intraday order flow imbalance."""
+    result = order_flow.analyze_order_flow(ticker)
+    return {"success": True, "data": result}
+
+
+@api_router.get("/quant/vol-surface/{ticker}")
+async def get_vol_surface(ticker: str):
+    """Tier 5: Volatility surface analysis."""
+    result = vol_surface.analyze_vol_surface(ticker)
+    return {"success": True, "data": result}
+
+
+@api_router.get("/quant/vol-opportunities")
+async def get_vol_opportunities():
+    """Tier 5: Scan for vol surface opportunities across F&O stocks."""
+    from core.quant.options_flow import FNO_STOCKS
+    results = vol_surface.scan_vol_opportunities(FNO_STOCKS)
+    return {"success": True, "opportunities": results}
 
 
 # ── WebSocket ──

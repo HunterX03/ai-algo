@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, TrendingUp, Layers, Activity, Shield, Newspaper, Clock } from 'lucide-react';
+import { BarChart3, TrendingUp, Layers, Activity, Shield, Newspaper, Clock, Zap } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -15,6 +15,7 @@ const Sidebar = () => {
     { path: '/risk', icon: Shield, label: 'Risk Manager' },
     { path: '/sentiment', icon: Newspaper, label: 'Sentiment Hub' },
     { path: '/intraday', icon: Clock, label: 'Intraday Monitor' },
+    { path: '/quant', icon: Zap, label: 'Quant Engine' },
   ];
   
   return (

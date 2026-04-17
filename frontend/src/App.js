@@ -9,6 +9,7 @@ import BacktestSuite from './pages/BacktestSuite';
 import RiskManager from './pages/RiskManager';
 import SentimentHub from './pages/SentimentHub';
 import IntradayMonitor from './pages/IntradayMonitor';
+import QuantEngine from './pages/QuantEngine';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/risk" element={<RiskManager />} />
             <Route path="/sentiment" element={<SentimentHub />} />
             <Route path="/intraday" element={<IntradayMonitor />} />
+            <Route path="/quant" element={<QuantEngine />} />
           </Routes>
         </main>
       </div>
