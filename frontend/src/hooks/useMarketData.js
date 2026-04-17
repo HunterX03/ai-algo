@@ -83,10 +83,7 @@ export const useMarketData = () => {
   const runBacktest = async (strategy, capital = 100000) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API}/backtest/run`, {
-        strategy,
-        capital
-      });
+      const response = await axios.post(`${API}/backtest/run?strategy=${strategy}&capital=${capital}`);
       setLoading(false);
       return response.data;
     } catch (err) {
@@ -98,7 +95,8 @@ export const useMarketData = () => {
 
   const calculateRisk = async (params) => {
     try {
-      const response = await axios.post(`${API}/portfolio/risk`, params);
+      const queryStr = new URLSearchParams(params).toString();
+      const response = await axios.get(`${API}/portfolio/risk?${queryStr}`);
       return response.data;
     } catch (err) {
       console.error('Risk calculation error:', err);

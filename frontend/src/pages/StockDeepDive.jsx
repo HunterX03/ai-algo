@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { createChart } from 'lightweight-charts';
+import { createChart, CandlestickSeries } from 'lightweight-charts';
 import { useMarketData } from '../hooks/useMarketData';
 
 const StockDeepDive = () => {
@@ -53,9 +53,13 @@ const StockDeepDive = () => {
       timeScale: {
         borderColor: '#1F2937',
       },
+      localization: {
+        locale: 'en-US',
+      },
     });
     
-    const candlestickSeries = chart.addCandlestickSeries({
+    // Use v5 API: addSeries with CandlestickSeries
+    const candlestickSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#10B981',
       downColor: '#EF4444',
       borderUpColor: '#10B981',
